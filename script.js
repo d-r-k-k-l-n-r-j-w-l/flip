@@ -1,156 +1,565 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // CONFIG – change these to your actual details
-  const DAY = "Saturday";
-  const DATE = "November 29";
-  const PLACE = "Cubao Expo";
-  const MOVIE_DATE = "November 29";
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-  // DOM refs
-  const landing = document.getElementById("landing");
-  const bookView = document.getElementById("bookView");
-  const bookCover = document.getElementById("bookCover");
+:root {
+    --ink: #111111;
+    --paper: #fdf9f3;
+    --paper-alt: #fffdf7;
+    --shadow: #111111;
+}
 
-  const inviteCard = document.getElementById("inviteCard");
-  const nextTimeMessage = document.getElementById("nextTimeMessage");
-  const inviteMainText = document.getElementById("inviteMainText");
+/* === ROOT + BODY LAYOUT (SCROLLABLE) === */
 
-  const inviteModal = document.getElementById("inviteModal");
-  const modalCard = document.getElementById("modalCard");
-  const modalClose = document.getElementById("modalClose");
-  const questionText = document.getElementById("questionText");
-  const yesBtn = document.getElementById("yesBtn");
-  const noBtn = document.getElementById("noBtn");
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    font-family:
+        "Patrick Hand",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    color: var(--ink);
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto; /* allow scrolling */
+}
 
-  // steps:
-  // 1 - "Are you free...?"
-  // 2 - "Are you up to go to [place]...?"
-  // 3 - "How about a Discord movie date?"
-  let step = 1;
-
-  /* ---------- FLIP BETWEEN LANDING AND BOOK VIEW ---------- */
-
-  function startBookOpen() {
-    // flip only the book cover, so pivot is centered on it
-    bookCover.classList.add("flip-out");
-  }
-
-  // when cover flip animation ends: hide landing, show book, flip book in
-  bookCover.addEventListener("animationend", (e) => {
-    if (e.animationName === "coverFlipOut") {
-      // hide landing section
-      landing.classList.add("hidden");
-      // clean up class
-      bookCover.classList.remove("flip-out");
-
-      // show open-book view and flip it in
-      bookView.classList.remove("hidden");
-      bookView.classList.add("flip-in");
-    }
-  });
-
-  // when book flip-in ends: just remove helper class
-  bookView.addEventListener("animationend", (e) => {
-    if (e.animationName === "bookFlipIn") {
-      bookView.classList.remove("flip-in");
-    }
-  });
-
-  /* ---------- MODAL + QUESTIONS ---------- */
-
-  function openModal() {
-    step = 1;
-    nextTimeMessage.classList.add("hidden");
-    setQuestionForStep();
-
-    inviteModal.classList.remove("hidden");
-    inviteModal.classList.add("visible");
-  }
-
-  function closeModal() {
-    inviteModal.classList.remove("visible");
-    inviteModal.classList.add("hidden");
-  }
-
-  function flipAndSetStep(next) {
-    step = next;
-    modalCard.classList.add("flip");
-    modalCard.addEventListener(
-      "animationend",
-      () => {
-        modalCard.classList.remove("flip");
-        setQuestionForStep();
-      },
-      { once: true },
+/* rotating spiral lines like a doodle */
+body::before {
+    content: "";
+    position: fixed;
+    inset: -40%;
+    z-index: -1;
+    /* concentric spiral-ish lines */
+    background: repeating-radial-gradient(
+        circle,
+        rgba(0, 0, 0, 0.05) 0,
+        rgba(0, 0, 0, 0.05) 3px,
+        transparent 3px,
+        transparent 14px
     );
-  }
+    mix-blend-mode: multiply;
+    opacity: 0.4;
+    transform-origin: center;
+    animation: spinSpiral 60s linear infinite;
+    pointer-events: none; /* don't block touch/scroll */
+}
 
-  function setQuestionForStep() {
-    if (step === 1) {
-      questionText.textContent = `Are you free on ${DAY} - ${DATE}?`;
-      yesBtn.textContent = "Yes";
-      noBtn.textContent = "No";
-      noBtn.style.display = "inline-block";
-    } else if (step === 2) {
-      questionText.textContent = `Are you up to go to ${PLACE} - ${DATE}?`;
-      yesBtn.textContent = "Absolutely";
-      noBtn.textContent = "I'm Busy :(";
-      noBtn.style.display = "inline-block";
-    } else if (step === 3) {
-      questionText.textContent = "How about a Discord movie date?";
-      yesBtn.textContent = "I'm down";
-      noBtn.textContent = "I'm really busy";
-      noBtn.style.display = "inline-block";
+@keyframes spinSpiral {
+    0% {
+        transform: rotate(0deg) scale(1.1);
     }
-  }
-
-  /* ---------- EVENT LISTENERS ---------- */
-
-  // book cover click → flip animation into book view
-  bookCover.addEventListener("click", startBookOpen);
-
-  // click invite card → open modal
-  inviteCard.addEventListener("click", openModal);
-
-  // close button & clicking backdrop
-  modalClose.addEventListener("click", closeModal);
-  inviteModal.addEventListener("click", (e) => {
-    if (
-      e.target === inviteModal ||
-      e.target.classList.contains("modal-backdrop")
-    ) {
-      closeModal();
+    50% {
+        transform: rotate(180deg) scale(1.05);
     }
-  });
-
-  // NO button behaviour
-  noBtn.addEventListener("click", () => {
-    if (step === 1) {
-      // first question: straight to "next time"
-      closeModal();
-      nextTimeMessage.classList.remove("hidden");
-    } else if (step === 2) {
-      // "I'm Busy :(" -> go to Discord movie question
-      flipAndSetStep(3);
-    } else if (step === 3) {
-      // "I'm really busy" -> next time
-      closeModal();
-      nextTimeMessage.classList.remove("hidden");
+    100% {
+        transform: rotate(360deg) scale(1.1);
     }
-  });
+}
 
-  // YES button behaviour
-  yesBtn.addEventListener("click", () => {
-    if (step === 1) {
-      // Yes I'm free -> ask about going out
-      flipAndSetStep(2);
-    } else if (step === 2) {
-      // Absolutely -> go to invite card page
-      closeModal();
-      window.location.href = "card.html?type=date";
-    } else if (step === 3) {
-      // I'm down (Discord movie date) -> go to movie ticket page
-      closeModal();
-      window.location.href = "card.html?type=movie";
+/* generic helpers */
+
+.hidden {
+    display: none !important;
+}
+
+/* subtle wobble like hand-drawn lines */
+
+@keyframes wobbleSlow {
+    0% {
+        transform: rotate(-1.2deg) translate(-2px, 0);
     }
-  });
-});
+    50% {
+        transform: rotate(1.2deg) translate(2px, 1px);
+    }
+    100% {
+        transform: rotate(-1.2deg) translate(-2px, 0);
+    }
+}
+
+@keyframes wobbleMedium {
+    0% {
+        transform: rotate(1.4deg) translate(1px, -1px);
+    }
+    50% {
+        transform: rotate(-0.8deg) translate(-2px, 1px);
+    }
+    100% {
+        transform: rotate(1.4deg) translate(1px, -1px);
+    }
+}
+
+.sketch-outline {
+    border: 3px solid var(--ink);
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* Views */
+
+.view {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto 40px;
+    padding: 24px;
+}
+
+/* Landing / closed book */
+.view-landing {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* open book view can scroll normally */
+.view-book {
+    margin: 24px auto 40px;
+}
+
+.sketch-frame {
+    background: var(--paper-alt);
+    padding: 32px;
+    border-radius: 24px;
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--shadow);
+    animation: wobbleSlow 6s ease-in-out infinite alternate;
+}
+
+/* Landing / closed book */
+
+.book {
+    position: relative;
+}
+
+.book-closed {
+    width: min(420px, 100%);
+    margin: 0 auto;
+    padding: 40px 32px;
+    background: linear-gradient(
+        135deg,
+        #fdf4e3 0,
+        #fffaf0 40%,
+        #fef9e7 70%,
+        #fdf4e3 100%
+    );
+    border-radius: 18px;
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--shadow);
+    cursor: pointer;
+    transform: skewX(-2deg) rotate(-1deg);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    animation: wobbleMedium 4s ease-in-out infinite alternate;
+}
+
+.book-closed:hover {
+    transform: skewX(-1deg) rotate(0deg) translateY(-2px);
+    box-shadow: 8px 8px 0 var(--shadow);
+}
+
+.book-label {
+    font-size: 32px;
+    letter-spacing: 0.1em;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.book-sub {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 24px;
+}
+
+.book-hint {
+    text-align: right;
+    font-size: 16px;
+}
+
+/* 3D flip for opening the book (centered on cover) */
+
+.book-closed,
+.view-book {
+    transform-origin: center center;
+    transform-style: preserve-3d;
+}
+
+/* cover flips away */
+.book-closed.flip-out {
+    animation: coverFlipOut 0.6s ease-in-out forwards;
+}
+
+/* open book flips in */
+.view-book.flip-in {
+    animation: bookFlipIn 0.6s ease-in-out forwards;
+}
+
+@keyframes coverFlipOut {
+    0% {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: rotateY(90deg);
+    }
+}
+
+@keyframes bookFlipIn {
+    0% {
+        opacity: 0;
+        transform: rotateY(-90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+/* Open book */
+
+.book-open-frame {
+    max-width: 1040px;
+}
+
+.book-open {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.page {
+    flex: 1 1 320px;
+    background: #fff;
+    padding: 24px 20px;
+    border-radius: 18px;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
+    position: relative;
+    overflow: hidden;
+    animation: wobbleMedium 6s ease-in-out infinite alternate;
+}
+
+.page-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.page-content-pdf {
+    /* let the height adjust to image/content */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.pdf-frame {
+    flex: 1;
+    width: 100%;
+    border: 2px dashed var(--ink);
+    border-radius: 12px;
+    background: repeating-linear-gradient(
+        -45deg,
+        #fdf6ea,
+        #fdf6ea 6px,
+        #fbead0 6px,
+        #fbead0 12px
+    );
+}
+
+/* zine image preview */
+
+.zine-image {
+    width: 100%;
+    border: 2px dashed var(--ink);
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 8px;
+    object-fit: cover;
+}
+
+.tiny-note {
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+/* invite card */
+
+.page-right {
+    background: #fffef6;
+}
+
+.invite-card {
+    margin-top: 12px;
+    position: relative;
+    padding: 22px 20px 26px;
+    background: #fffdf2;
+    border-radius: 14px;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
+    cursor: pointer;
+    transform: rotate(-1deg);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    animation: wobbleMedium 5s ease-in-out infinite alternate;
+}
+
+.invite-card:hover {
+    transform: rotate(0.5deg) translateY(-2px);
+    box-shadow: 6px 6px 0 var(--shadow);
+}
+
+.tape {
+    position: absolute;
+    left: 50%;
+    width: 80px;
+    height: 18px;
+    background: rgba(255, 248, 188, 0.9);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%) rotate(-3deg);
+}
+
+.tape-top {
+    top: -8px;
+}
+
+.tape-bottom {
+    bottom: -8px;
+    transform: translateX(-50%) rotate(4deg);
+}
+
+.invite-inner {
+    position: relative;
+    z-index: 1;
+}
+
+#inviteMainText {
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.invite-hint {
+    margin-top: 8px;
+    font-size: 15px;
+    text-align: right;
+}
+
+.next-time-message {
+    margin-top: 18px;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+/* Modal */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 20;
+}
+
+.modal.visible {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.modal-card {
+    position: relative;
+    background: #fffdf7;
+    padding: 24px 24px 30px;
+    max-width: 380px;
+    width: calc(100% - 40px);
+    z-index: 1;
+    transform-origin: center;
+}
+
+.modal-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-title {
+    margin: 0 0 10px;
+    font-size: 22px;
+}
+
+.modal-question {
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn {
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    padding: 6px 16px;
+    font-size: 16px;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--shadow);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--shadow);
+}
+
+.btn-yes {
+    background: #ffeef4;
+}
+
+.btn-no {
+    background: #eef6ff;
+}
+
+.download-btn {
+    margin-top: 8px;
+    align-self: flex-start;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    background: #fffdf4;
+    font-size: 15px;
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--shadow);
+    cursor: pointer;
+}
+
+.download-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* steps box above the book */
+
+.steps-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.steps-box {
+    background: #fffef7;
+    padding: 16px 26px;
+    border-radius: 40px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+    max-width: 640px;
+    width: 100%;
+    animation: wobbleMedium 7s ease-in-out infinite alternate;
+}
+
+.step-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.step-number {
+    font-size: 28px;
+    min-width: 24px;
+}
+
+.step-text {
+    line-height: 1.3;
+}
+
+.step-divider {
+    width: 3px;
+    background: var(--ink);
+    border-radius: 999px;
+    align-self: stretch;
+}
+
+/* smaller on mobile */
+@media (max-width: 640px) {
+    .steps-box {
+        flex-direction: column;
+        border-radius: 28px;
+        padding: 14px 18px;
+    }
+
+    .step-divider {
+        width: 100%;
+        height: 3px;
+    }
+}
+
+/* flip animation for changing questions in modal */
+
+@keyframes cardFlip {
+    0% {
+        transform: rotateY(0deg);
+    }
+    49% {
+        transform: rotateY(90deg);
+    }
+    50% {
+        transform: rotateY(270deg);
+    }
+    100% {
+        transform: rotateY(360deg);
+    }
+}
+
+.modal-card.flip {
+    animation: cardFlip 0.45s ease-in-out;
+}
+
+/* Responsive */
+
+@media (max-width: 720px) {
+    .book-open {
+        flex-direction: column;
+    }
+
+    .page {
+        flex: 1 1 auto;
+    }
+}
