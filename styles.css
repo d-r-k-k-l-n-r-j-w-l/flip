@@ -126,6 +126,17 @@ body::before {
     max-width: 960px;
     padding: 24px;
 }
+.view-landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-book {
+  /* normal block layout that can scroll */
+  margin: 24px auto 40px;
+}
 
 .sketch-frame {
     background: var(--paper-alt);
