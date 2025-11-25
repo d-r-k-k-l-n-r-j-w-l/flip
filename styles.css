@@ -221,6 +221,22 @@ body::before {
     display: flex;
     flex-direction: column;
 }
+.page-content-pdf {
+    /* let the height adjust to the image */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.zine-image {
+    width: 100%;
+    border: 2px dashed var(--ink);
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 8px;
+    object-fit: cover;
+}
+
 
 .pdf-frame {
     flex: 1;
