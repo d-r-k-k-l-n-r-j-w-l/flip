@@ -11,8 +11,12 @@
     --shadow: #111111;
 }
 
+/* === ROOT + BODY LAYOUT (SCROLLABLE) === */
+
+html,
 body {
     margin: 0;
+    padding: 0;
     min-height: 100vh;
     background: var(--paper);
     font-family:
@@ -25,28 +29,7 @@ body {
     color: var(--ink);
     position: relative;
     overflow-x: hidden;
-    overflow-y: auto;
-}
-
-/* --- SPIRAL BACKGROUND --- */
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--paper);
-    font-family:
-        "Patrick Hand",
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    color: var(--ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    overflow-y: auto; /* allow scrolling */
 }
 
 /* rotating spiral lines like a doodle */
@@ -67,6 +50,7 @@ body::before {
     opacity: 0.4;
     transform-origin: center;
     animation: spinSpiral 60s linear infinite;
+    pointer-events: none; /* don't block touch/scroll */
 }
 
 @keyframes spinSpiral {
@@ -124,18 +108,21 @@ body::before {
 .view {
     width: 100%;
     max-width: 960px;
+    margin: 0 auto 40px;
     padding: 24px;
 }
+
+/* Landing / closed book */
 .view-landing {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* open book view can scroll normally */
 .view-book {
-  /* normal block layout that can scroll */
-  margin: 24px auto 40px;
+    margin: 24px auto 40px;
 }
 
 .sketch-frame {
@@ -429,6 +416,7 @@ body::before {
     transform: translate(-1px, -1px);
     box-shadow: 4px 4px 0 var(--shadow);
 }
+
 /* steps box above the book */
 
 .steps-wrapper {
