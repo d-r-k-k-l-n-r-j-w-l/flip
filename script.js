@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   // CONFIG – change these to your actual details
   const DAY = "Saturday";
-  const DATE = "November  29";
+  const DATE = "November 29";
   const PLACE = "Cubao Expo";
-  const MOVIE_DATE = "November  29";
+  const MOVIE_DATE = "November 29";
 
   // DOM refs
   const landing = document.getElementById("landing");
@@ -21,32 +21,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const yesBtn = document.getElementById("yesBtn");
   const noBtn = document.getElementById("noBtn");
 
-  const downloadDateFlip = document.getElementById("downloadDateFlip");
-  const downloadMovieTicket = document.getElementById("downloadMovieTicket");
-
   // steps:
   // 1 - "Are you free...?"
   // 2 - "Are you up to go to [place]...?"
   // 3 - "How about a Discord movie date?"
   let step = 1;
 
-  function showBook() {
-    landing.classList.add("hidden");
-    bookView.classList.remove("hidden");
+  /* ---------- FLIP BETWEEN LANDING AND BOOK VIEW ---------- */
+
+  function startBookOpen() {
+    // flip only the book cover, so pivot is centered on it
+    bookCover.classList.add("flip-out");
   }
+
+  // when cover flip animation ends: hide landing, show book, flip book in
+  bookCover.addEventListener("animationend", (e) => {
+    if (e.animationName === "coverFlipOut") {
+      // hide landing section
+      landing.classList.add("hidden");
+      // clean up class
+      bookCover.classList.remove("flip-out");
+
+      // show open-book view and flip it in
+      bookView.classList.remove("hidden");
+      bookView.classList.add("flip-in");
+    }
+  });
+
+  // when book flip-in ends: just remove helper class
+  bookView.addEventListener("animationend", (e) => {
+    if (e.animationName === "bookFlipIn") {
+      bookView.classList.remove("flip-in");
+    }
+  });
+
+  /* ---------- MODAL + QUESTIONS ---------- */
 
   function openModal() {
     step = 1;
     nextTimeMessage.classList.add("hidden");
     setQuestionForStep();
 
-    // 🔧 show modal
     inviteModal.classList.remove("hidden");
     inviteModal.classList.add("visible");
   }
 
   function closeModal() {
-    // 🔧 hide modal
     inviteModal.classList.remove("visible");
     inviteModal.classList.add("hidden");
   }
@@ -83,8 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // book cover click → open book
-  bookCover.addEventListener("click", showBook);
+  /* ---------- EVENT LISTENERS ---------- */
+
+  // book cover click → flip animation into book view
+  bookCover.addEventListener("click", startBookOpen);
 
   // click invite card → open modal
   inviteCard.addEventListener("click", openModal);
