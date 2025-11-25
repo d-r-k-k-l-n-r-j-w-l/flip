@@ -185,46 +185,6 @@ body::before {
     font-size: 16px;
 }
 
-/* 3D flip for opening the book (centered on cover) */
-
-.book-closed,
-.view-book {
-    transform-origin: center center;
-    transform-style: preserve-3d;
-}
-
-/* cover flips away */
-.book-closed.flip-out {
-    animation: coverFlipOut 0.6s ease-in-out forwards;
-}
-
-/* open book flips in */
-.view-book.flip-in {
-    animation: bookFlipIn 0.6s ease-in-out forwards;
-}
-
-@keyframes coverFlipOut {
-    0% {
-        opacity: 1;
-        transform: rotateY(0deg);
-    }
-    100% {
-        opacity: 0;
-        transform: rotateY(90deg);
-    }
-}
-
-@keyframes bookFlipIn {
-    0% {
-        opacity: 0;
-        transform: rotateY(-90deg);
-    }
-    100% {
-        opacity: 1;
-        transform: rotateY(0deg);
-    }
-}
-
 /* Open book */
 
 .book-open-frame {
@@ -257,11 +217,26 @@ body::before {
 }
 
 .page-content-pdf {
-    /* let the height adjust to image/content */
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+.page-content-pdf {
+    /* let the height adjust to the image */
     height: auto;
     display: flex;
     flex-direction: column;
 }
+
+.zine-image {
+    width: 100%;
+    border: 2px dashed var(--ink);
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 8px;
+    object-fit: cover;
+}
+
 
 .pdf-frame {
     flex: 1;
@@ -275,17 +250,6 @@ body::before {
         #fbead0 6px,
         #fbead0 12px
     );
-}
-
-/* zine image preview */
-
-.zine-image {
-    width: 100%;
-    border: 2px dashed var(--ink);
-    border-radius: 12px;
-    display: block;
-    margin-bottom: 8px;
-    object-fit: cover;
 }
 
 .tiny-note {
@@ -531,7 +495,7 @@ body::before {
     }
 }
 
-/* flip animation for changing questions in modal */
+/* flip animation for changing questions */
 
 @keyframes cardFlip {
     0% {
