@@ -26,6 +26,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* --- SPIRAL BACKGROUND --- */
